@@ -29,7 +29,7 @@ func TestAnswerWithOneArgument(t *testing.T) {
 	}
 }
 
-func TestAnswerWithNullArray(t *testing.T) {
+func TestAnswerWithNilArray(t *testing.T) {
 	got := answer.SortByCharacter(nil, "a")
 	if got != nil {
 		t.Errorf("got %q, wanted nil", got)
