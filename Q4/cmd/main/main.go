@@ -16,8 +16,8 @@ func main() {
 	// Get all users
 	router.GET("/users/", service.GetUsers)
 
-	// Create a user
-	//router.POST("/users/", "")
+	//Create a user
+	router.POST("/users/", service.CreateUser)
 
 	// Update a user
 	//router.PUT("/users/", "")
