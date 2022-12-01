@@ -20,7 +20,7 @@ func main() {
 	router.POST("/users/", service.CreateUser)
 
 	// Update a user
-	//router.PUT("/users/", "")
+	router.PUT("/users/", service.UpdateUser)
 
 	// Delete a specific user by the userID
 	//router.DELETE("/movies/{movieid}", "")

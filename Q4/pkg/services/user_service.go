@@ -31,7 +31,7 @@ func GetUsers(c *gin.Context) {
 
 		users = append(users, model.User{UserID: userID, UserName: userName, Mail: mail, PasswordHash: passwordHash})
 	}
-	var response = common.JsonResponse[[]model.User]{Type: "success", Data: users}
+	var response = common.JsonResponse[[]model.User]{Type: "success", Data: users, IsError: false}
 	json.NewEncoder(c.Writer).Encode(response)
 }
 
@@ -43,7 +43,7 @@ func CreateUser(c *gin.Context) {
 	var response = common.JsonResponse[string]{}
 
 	if !util.IsValidPassword(user.Password) || !util.IsValidUsername(user.Mail) {
-		response = common.JsonResponse[string]{Type: "error", Message: "Username must be equal or longer than 7 character. Password must be complex."}
+		response = common.JsonResponse[string]{Type: "error", Message: "Username must be equal or longer than 7 character. Password must be complex.", IsError: true}
 	} else {
 		user.PasswordHash = util.GetMD5Hash(user.Password)
 		db := persistence.SetupDB()
@@ -53,8 +53,42 @@ func CreateUser(c *gin.Context) {
 
 		common.CheckError(err)
 
-		response = common.JsonResponse[string]{Type: "success", Message: "The user has been inserted successfully!", Data: lastInsertID}
+		response = common.JsonResponse[string]{Type: "success", Message: "The user has been inserted successfully!", Data: lastInsertID, IsError: false}
 	}
+
+	json.NewEncoder(c.Writer).Encode(response)
+}
+
+func UpdateUser(c *gin.Context) {
+	var updatedUser model.User
+
+	common.CheckError(json.NewDecoder(c.Request.Body).Decode(&updatedUser))
+
+	var response = common.JsonResponse[string]{}
+
+	updatedUser.PasswordHash = util.GetMD5Hash(updatedUser.Password)
+	db := persistence.SetupDB()
+
+	var user model.User
+
+	err := db.QueryRow("SELECT user_id, username, password_hash, mail, is_deleted FROM public.user WHERE user_id =$1 AND is_deleted=false;", updatedUser.UserID).Scan(&user.UserID, &user.UserName, &user.PasswordHash, &user.Mail, &user.IsDeleted)
+	common.CheckError(err)
+
+	// if !util.IsNullOrEmpty(user.Password) && util.IsValidPassword(user.Password) {
+	// 	updatedUser.Password = user.Password
+	// }
+	if util.IsValidMail(updatedUser.Mail) {
+		user.Mail = updatedUser.Mail
+	}
+
+	if util.IsValidUsername(updatedUser.UserName) {
+		user.UserName = updatedUser.UserName
+	}
+	var userID string
+	err = db.QueryRow("UPDATE public.user SET username = $1, password_hash = $2, mail = $3 WHERE user_id = $4 AND is_deleted=false returning user_id;", user.UserName, user.PasswordHash, user.Mail, user.UserID).Scan(&userID)
+
+	common.CheckError(err)
+	response = common.JsonResponse[string]{Type: "success", Message: "The user has been updated successfully!", Data: updatedUser.UserID, IsError: false}
 
 	json.NewEncoder(c.Writer).Encode(response)
 }
