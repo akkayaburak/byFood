@@ -6,6 +6,7 @@ import (
 	persistence "byFood/Q4/pkg/persistence"
 	util "byFood/Q4/pkg/utils"
 	"encoding/json"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -31,8 +32,8 @@ func GetUsers(c *gin.Context) {
 
 		users = append(users, model.User{UserID: userID, UserName: userName, Mail: mail, PasswordHash: passwordHash})
 	}
-	var response = common.JsonResponse[[]model.User]{Type: "success", Data: users, IsError: false}
-	json.NewEncoder(c.Writer).Encode(response)
+	var response = common.JsonResponse[[]model.User]{Type: "success", Data: users, IsError: false, StatusCode: http.StatusOK}
+	c.JSON(response.StatusCode, response)
 }
 
 func GetUser(c *gin.Context) {
@@ -46,9 +47,9 @@ func GetUser(c *gin.Context) {
 
 	common.CheckError(err)
 
-	response = common.JsonResponse[model.User]{Type: "success", Message: "", Data: user, IsError: false}
+	response = common.JsonResponse[model.User]{Type: "success", Message: "", Data: user, IsError: false, StatusCode: http.StatusOK}
 
-	json.NewEncoder(c.Writer).Encode(response)
+	c.JSON(response.StatusCode, response)
 }
 
 func CreateUser(c *gin.Context) {
@@ -59,7 +60,7 @@ func CreateUser(c *gin.Context) {
 	var response = common.JsonResponse[string]{}
 
 	if !util.IsValidPassword(user.Password) || !util.IsValidUsername(user.Mail) {
-		response = common.JsonResponse[string]{Type: "error", Message: "Username must be equal or longer than 7 character. Password must be complex.", IsError: true}
+		response = common.JsonResponse[string]{Type: "error", Message: "Username must be equal or longer than 7 character. Password must be complex.", IsError: true, StatusCode: http.StatusBadRequest}
 	} else {
 		user.PasswordHash = util.GetMD5Hash(user.Password)
 		db := persistence.SetupDB()
@@ -69,10 +70,9 @@ func CreateUser(c *gin.Context) {
 
 		common.CheckError(err)
 
-		response = common.JsonResponse[string]{Type: "success", Message: "The user has been inserted successfully!", Data: lastInsertID, IsError: false}
+		response = common.JsonResponse[string]{Type: "success", Message: "The user has been inserted successfully!", Data: lastInsertID, IsError: false, StatusCode: http.StatusOK}
 	}
-
-	json.NewEncoder(c.Writer).Encode(response)
+	c.JSON(response.StatusCode, response)
 }
 
 func UpdateUser(c *gin.Context) {
@@ -105,9 +105,9 @@ func UpdateUser(c *gin.Context) {
 	err = db.QueryRow("UPDATE public.user SET username = $1, password_hash = $2, mail = $3 WHERE user_id = $4 AND is_deleted=false returning user_id;", user.UserName, user.PasswordHash, user.Mail, user.UserID).Scan(&userID)
 
 	common.CheckError(err)
-	response = common.JsonResponse[string]{Type: "success", Message: "The user has been updated successfully!", Data: updatedUser.UserID, IsError: false}
+	response = common.JsonResponse[string]{Type: "success", Message: "The user has been updated successfully!", Data: updatedUser.UserID, IsError: false, StatusCode: http.StatusOK}
 
-	json.NewEncoder(c.Writer).Encode(response)
+	c.JSON(response.StatusCode, response)
 }
 
 func DeleteUser(c *gin.Context) {
@@ -122,7 +122,7 @@ func DeleteUser(c *gin.Context) {
 
 	common.CheckError(err)
 
-	response = common.JsonResponse[model.UserID]{Type: "success", Message: "The user has been deleted successfully!", Data: userID, IsError: false}
+	response = common.JsonResponse[model.UserID]{Type: "success", Message: "The user has been deleted successfully!", Data: userID, IsError: false, StatusCode: http.StatusOK}
 
-	json.NewEncoder(c.Writer).Encode(response)
+	c.JSON(response.StatusCode, response)
 }

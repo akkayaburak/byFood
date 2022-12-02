@@ -4,12 +4,15 @@ import (
 	service "byFood/Q4/pkg/services"
 	"fmt"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	//_ "github.com/lib/pq"
 )
 
 func main() {
 	router := gin.Default()
+
+	//adding cors
+	router.Use(cors.Default())
 
 	// Route handles & endpoints
 
