@@ -8,3 +8,7 @@ type User struct {
 	Mail         string `json:"mail"`
 	IsDeleted    bool   `json:"isdeleted"`
 }
+
+type UserID struct {
+	UserID string `json:"userid"`
+}
