@@ -6,7 +6,7 @@ export interface IResult {
     data: IUser[];
   }
 export interface IUser {
-    userid : string | null;
+    userid : string;
     username : string | null;
     password : string | null;
     passwordhash : string | null;

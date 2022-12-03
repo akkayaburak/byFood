@@ -9,10 +9,9 @@ export const getUsers = (setUsers: (value: IUser[]) => void) => {
       }).catch((err) =>  console.log(err))
 } 
 
-export const getUser = (userid: string) => {
-    axios.get<IResult>(`http://localhost:8080/users/${userid}`)
+export const deleteUser = (userid: string | null) => {
+    axios.delete<IResult>(`http://localhost:8080/users/`,{data: {"userid" : userid}})
       .then((res) => {
-        //setUsers(res.data.data)
       }).catch((err) =>  console.log(err))
 } 
 
