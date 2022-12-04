@@ -24,7 +24,10 @@ func main() {
 		CONSTRAINT user_id_pkey PRIMARY KEY (user_id)
 	)
 	
-	TABLESPACE pg_default;`)
+	TABLESPACE pg_default;
+	
+	CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+	`)
 
 	common.CheckError(err)
 
