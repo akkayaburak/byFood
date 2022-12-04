@@ -90,9 +90,6 @@ func UpdateUser(c *gin.Context) {
 	err := db.QueryRow("SELECT user_id, username, password_hash, mail, is_deleted FROM public.user WHERE user_id =$1 AND is_deleted=false", updatedUser.UserID).Scan(&user.UserID, &user.UserName, &user.PasswordHash, &user.Mail, &user.IsDeleted)
 	common.CheckError(err)
 
-	// if !util.IsNullOrEmpty(user.Password) && util.IsValidPassword(user.Password) {
-	// 	updatedUser.Password = user.Password
-	// }
 	if util.IsValidMail(updatedUser.Mail) {
 		user.Mail = updatedUser.Mail
 	}

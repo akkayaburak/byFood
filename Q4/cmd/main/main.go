@@ -1,6 +1,8 @@
 package main
 
 import (
+	common "byFood/Q4/pkg/common"
+	persistence "byFood/Q4/pkg/persistence"
 	service "byFood/Q4/pkg/services"
 	"fmt"
 
@@ -9,6 +11,23 @@ import (
 )
 
 func main() {
+
+	db := persistence.SetupDB()
+
+	_, err := db.Query(`CREATE TABLE IF NOT EXISTS public.user
+	(
+		user_id uuid NOT NULL DEFAULT uuid_generate_v4(),
+		username text COLLATE pg_catalog."default" NOT NULL,
+		password_hash text COLLATE pg_catalog."default" NOT NULL,
+		mail text COLLATE pg_catalog."default" NOT NULL,
+		is_deleted boolean NOT NULL DEFAULT false,
+		CONSTRAINT user_id_pkey PRIMARY KEY (user_id)
+	)
+	
+	TABLESPACE pg_default;`)
+
+	common.CheckError(err)
+
 	router := gin.Default()
 
 	//adding cors
